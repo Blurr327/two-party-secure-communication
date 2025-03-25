@@ -31,7 +31,7 @@ class CircuitCombinatoire:
         self.edges = []
 
     def __init__self(self, n : int):
-        
+        pass
 
     def get_etiquettes(self, node : Node) -> set[Etiquette]:
         return node.get_value()
