@@ -1,0 +1,68 @@
+from enum import Enum
+from node import Node
+
+class Etiquette(Enum):
+    """sumary_line
+    
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+    INa = 1
+    Inb = 2
+    NOT = 3
+    XOR = 4
+    AND = 5
+    OUTa = 6
+    OUTb = 7
+
+class CircuitCombinatoire:
+    """sumary_line
+    
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+    nodes : list[Node]
+    edges : list[tuple[Node, Node]]
+
+    def __init__(self):
+        self.nodes = []
+        self.edges = []
+
+    def __init__self(self, n : int):
+        
+
+    def get_etiquettes(self, node : Node) -> set[Etiquette]:
+        return node.get_value()
+
+    def verify_circuit(self) -> bool:
+        for node in self.nodes:
+            indeg = node.get_indeg(self.edges)
+            outdeg = node.get_outdeg(self.edges)
+
+            etiquettes = self.get_etiquettes(node)
+
+            match etiquettes:
+                case s if s == {Etiquette.INa, Etiquette.Inb}:
+                    if indeg != 0:
+                        return False
+                    if outdeg < 1:
+                        return False
+                case s if s == {Etiquette.NOT}:
+                    if indeg != 1:
+                        return False
+                    if outdeg < 1:
+                        return False
+                case s if s == {Etiquette.XOR, Etiquette.AND}:
+                    if indeg != 2:
+                        return False
+                    if outdeg < 1:
+                        return False
+                case s if s == {Etiquette.OUTa, Etiquette.OUTb}:
+                    if indeg != 1:
+                        return False
+                    if outdeg != 0:
+                        return False
+                    
+        return True
