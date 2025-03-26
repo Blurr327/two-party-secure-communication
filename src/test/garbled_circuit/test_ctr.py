@@ -4,7 +4,7 @@ from garbled_circuit.ctr import encrypt_ctr, decrypt_ctr, BIT_BLOCK_SIZE
 
 # Test basic encryption and decryption
 def test_ctr_encrypt_decrypt():
-    key = b"Sixteen byte key"
+    key = 0xABCD1234EF567890ABCD1234EF567890
     nonce = 230
     message = 1 << BIT_BLOCK_SIZE
 
@@ -15,7 +15,7 @@ def test_ctr_encrypt_decrypt():
 
 # Test symmetry property
 def test_ctr_symmetry():
-    key = b"Sixteen byte key"
+    key = 0xABCD1234EF567890ABCD1234EF567890
     nonce = 12345
     message = 0xABCD1234EF567890
 
@@ -26,7 +26,7 @@ def test_ctr_symmetry():
 
 # Test counter incrementation
 def test_ctr_counter_increment():
-    key = b"Sixteen byte key"
+    key = 0xABCD1234EF567890ABCD1234EF567890
     nonce = 100
     message = 0x1234567890ABCDEF
 
@@ -37,7 +37,7 @@ def test_ctr_counter_increment():
 
 # Test different message sizes
 def test_ctr_variable_lengths():
-    key = b"Sixteen byte key"
+    key = 0xABCD1234EF567890ABCD1234EF567890
     nonce = 42
 
     for length in [(BIT_BLOCK_SIZE // 2)*i for i in range(1, 6)]:
@@ -49,7 +49,7 @@ def test_ctr_variable_lengths():
 
 # Test reproducibility
 def test_ctr_reproducibility():
-    key = b"Sixteen byte key"
+    key = 0xABCD1234EF567890ABCD1234EF567890
     nonce = 77
     message = 0xDEADBEEFCAFEBABE
 
@@ -60,7 +60,7 @@ def test_ctr_reproducibility():
 
 # Test keystream uniqueness
 def test_keystream_uniqueness():
-    key = b"Sixteen byte key"
+    key = 0xABCD1234EF567890ABCD1234EF567890
     nonce1 = 555
     nonce2 = 556  # Different nonce
     message = 0xFEEDFACE
