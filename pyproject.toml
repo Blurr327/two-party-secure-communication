@@ -1,0 +1,20 @@
+[project]
+name = "calcul-biparti-et-transfert-inconscient-groupe-2"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Mohamed BEN EL MOSTAPHA", email = "benelmed36@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.poetry]
+packages = [{include = "garbled_circuit", from="src"}]
+
+[tool.poetry.group.dev.dependencies]
+pycryptodome = "^3.22.0"
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
