@@ -1,6 +1,7 @@
 from enum import Enum
 from node import Node
 
+
 class Etiquette(Enum):
     """sumary_line
     
@@ -26,12 +27,14 @@ class CircuitCombinatoire:
     nodes : list[Node]
     edges : list[tuple[Node, Node]]
 
-    def __init__(self):
+    def __init__(self, n : int):
         self.nodes = []
         self.edges = []
+        
+        input_a = Node({Etiquette.INa})
+        input_b = Node({Etiquette.Inb})
 
-    def __init__self(self, n : int):
-        pass
+        self.nodes.extend(input_a, input_b)
 
     def get_etiquettes(self, node : Node) -> set[Etiquette]:
         return node.get_value()

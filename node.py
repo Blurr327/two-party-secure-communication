@@ -1,6 +1,6 @@
 from __future__ import annotations
 from circuit_combinatoire import Etiquette
-
+from utils.binary import bit
 
 class Node:
   """sumary_line
@@ -9,9 +9,8 @@ class Node:
   argument -- description
   Return: return_description
   """
-  value : set[Etiquette]
   
-  def __init__(self, value : set[Etiquette], next_node : Node | None = None):
+  def __init__(self, value, next_node : Node | None = None):
     self.value = value
     self.next_node = next_node
     
@@ -21,7 +20,7 @@ class Node:
   def get_next_node(self) -> Node:
     return self.next_node
   
-  def get_value(self) -> set[Etiquette]:
+  def get_value(self) :
     return self.value
   
   def get_indeg(self, edges : list[tuple[Node, Node]]) -> int:
