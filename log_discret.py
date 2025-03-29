@@ -9,7 +9,7 @@ def calcul_log_discret(g: int, y: int, p: int) -> int | None:
     grands_pas: dict[int,int] = []
     for i in range(t+1) :
         grands_pas[pow(g,i*t,p)] = i
-    #on trie par rapport à la 2e composante du tuple, donc de la puissance calculée
+    #on trie par rapport à la 1ere composante du tuple, donc de la puissance calculée
     grands_pas_list = list(grands_pas.items()) # je fais ça pour pouvoir trier car on ne peut pas trier un dictionnaire
     grands_pas_list.sort(key=lambda t : t[0]) # nlogn
 
@@ -21,7 +21,7 @@ def calcul_log_discret(g: int, y: int, p: int) -> int | None:
         if valeur in grands_pas :
         # Étape 4 : Calcul de x à partir des indices i et k
             k: int = grands_pas[valeur]
-            return k * t + i
+            return (k * t + i)%(p-1)
 
     # Si aucune solution n'est trouvée
     return None
