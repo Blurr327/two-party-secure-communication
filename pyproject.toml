@@ -3,7 +3,8 @@ name = "calcul-biparti-et-transfert-inconscient-groupe-2"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Mohamed BEN EL MOSTAPHA", email = "benelmed36@gmail.com"}
+    {name = "Mohamed BEN EL MOSTAPHA", email = "benelmed36@gmail.com"},
+    {name = "Sabrina-Aïda OUARET", email = "sabrina-aida.ouaret@etu.u-paris.fr"}
 ]
 readme = "README.md"
 requires-python = ">=3.10"
