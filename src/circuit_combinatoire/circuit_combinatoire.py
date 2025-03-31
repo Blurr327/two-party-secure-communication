@@ -1,5 +1,5 @@
 from enum import Enum
-from node import Node
+from circuit_combinatoire.node import Node
 from __future__ import annotations
 
 
