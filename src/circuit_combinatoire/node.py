@@ -1,6 +1,4 @@
 from __future__ import annotations
-from circuit_combinatoire.circuit_combinatoire import Etiquette
-from utils.binary import bit
 
 class Node:
   """sumary_line

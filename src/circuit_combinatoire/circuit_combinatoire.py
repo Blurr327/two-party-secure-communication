@@ -1,7 +1,7 @@
-from enum import Enum
-from circuit_combinatoire.node import Node
 from __future__ import annotations
-
+from enum import Enum
+from node import Node
+from graphviz import Digraph
 
 class Etiquette(Enum):
     """sumary_line
@@ -17,6 +17,7 @@ class Etiquette(Enum):
     AND = 5
     OUTa = 6
     OUTb = 7
+    relie = 8
 
 class CircuitCombinatoire:
     """sumary_line
@@ -31,11 +32,6 @@ class CircuitCombinatoire:
     def __init__(self, n : int):
         self.nodes = []
         self.edges = []
-        
-        input_a = Node({Etiquette.INa})
-        input_b = Node({Etiquette.Inb})
-
-        self.nodes.extend(input_a, input_b)
 
     def get_etiquettes(self, node : Node) -> set[Etiquette]:
         return node.get_value()
@@ -72,13 +68,86 @@ class CircuitCombinatoire:
         return True
     
     def visualize(self) -> None:
-        pass
+        from graphviz import Digraph
+        dot = Digraph()
+
+        for node in self.nodes:
+            label = ','.join([et.name for et in node.get_value()])
+            dot.node(str(id(node)), label)
+
+        for src, dst in self.edges:
+            dot.edge(str(id(src)), str(id(dst)))
+
+        dot.render('circuit_graph', view=True, format='png')
+
+    def create_or(self, node_1 : Node, node_2 : Node) -> Node:
+        # Create nodes for OR operation
+        node_not = Node({Etiquette.NOT})
+        node_and = Node({Etiquette.AND})
+        node_xor = Node({Etiquette.XOR})
+        self.nodes.extend([node_not, node_and, node_xor])
+
+        # Create edges for OR operation
+        self.edges.append((node_1, node_and))
+        self.edges.append((node_2, node_and))
+        self.edges.append((node_1, node_not))
+        self.edges.append((node_and, node_xor))
+        self.edges.append((node_not, node_xor))
+
+        # Return the output node
+        return node_xor
     
-    def create_is_a_max(self, n : int, current : int = 1) :
+    def create_is_a_max(self, n : int, current : int = 0, previous_node : Node = None, equal_nodes : list[Node] = []) -> Node :
         if current == n:
             pass
         else:
+            # Create nodes for the current level
             node_a = Node({Etiquette.INa})
             node_b = Node({Etiquette.Inb})
+            node_and = Node({Etiquette.AND})
+            node_not = Node({Etiquette.NOT})
 
+            # Add nodes to the circuit
+            self.nodes.extend([node_a, node_b, node_and, node_not])
+
+            # Create edges for the current level
+            self.edges.append((node_a, node_and))
+            self.edges.append((node_b, node_not))
+            self.edges.append((node_not, node_and))
+
+            for node in equal_nodes:
+                node_and_equal = Node({Etiquette.relie})
+                self.nodes.append(node_and_equal)
+                self.edges.append((node_and, node_and_equal))
+                self.edges.append((node, node_and_equal))
+                node_and = node_and_equal
+                
+
+            # create egality nodes
+            node_egal_xor = Node({Etiquette.XOR})
+            node_egal_not = Node({Etiquette.NOT})
+            self.nodes.extend([node_egal_xor, node_egal_not])
+            self.edges.append((node_a, node_egal_xor))
+            self.edges.append((node_b, node_egal_xor))
+            self.edges.append((node_egal_xor, node_egal_not))
+            equal_nodes.append(node_egal_not)
+
+            # Connect to the previous level
+            if previous_node is not None:        
+                node_xor_or = self.create_or(previous_node, node_and)
+                previous_node = node_xor_or
+            else:
+                previous_node = node_and
+
+            self.visualize()
+
+            # Create the next level
+            self.create_is_a_max(n, current + 1, previous_node, equal_nodes)
+            
+
+
+if __name__ == "__main__":
+    circuit = CircuitCombinatoire(3)
+    circuit.create_is_a_max(3)
+    circuit.visualize()
             
