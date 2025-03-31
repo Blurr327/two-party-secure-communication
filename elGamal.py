@@ -1,39 +1,36 @@
 import secrets #module utilisé pour générer des grand nb random pour crypto
 import random
+rdm = random.SystemRandom()
 
-#Génération clé Alice
+# Test de primalité de Miller-Rabin
+def single_test(n: int, a: int) -> bool:
+    exp = n - 1
+    while exp % 2 == 0:  # Tant que exp est pair
+        exp //= 2
+    if pow(a, exp, n) == 1:
+        return True
+    while exp < n - 1:
+        if pow(a, exp, n) == n - 1:
+            return True
+        exp *= 2
+    return False
 
-#Test de primalité Fermat(pas très sécurisé)
-def is_prime_test_fermat(n : int, k=5) -> bool:
+def is_prime_miller_rabin(n: int, k=40) -> bool:
     if n < 2:
         return False
-    for _ in range(k):  # On fait k tests
-        a = random.randint(2, n - 2)
-        if pow(a, n - 1, n) != 1:
+    if n in (2, 3):
+        return True
+    if n % 2 == 0:
+        return False
+    for _ in range(k):
+        a = rdm.randrange(2, n - 1)
+        if not single_test(n, a):
             return False
     return True
 
-"""Test de primalité Miller Rabin"""
-def single_test( n : int, a : int) -> bool:
-    exp = n - 1
-    while not exp & 1: #while paire(pas positif bit de fin)
-        exp >> 1 # on coupe la fin
-    if pow(a, exp, n) == 1: # un des termes est divisible par n
-        return True
-    while exp < n-1 :
-        if pow(a,exp,n)==n-1:
-            print("A faire !")
-
-def is_prime_miller_rabin(n : int, k=5) -> bool:
-    
-    if n < 2:
-        return False
-    if n == 2 or n == 3:
-        return True
-    if n % 2 ==0:
-        return False
-    
+def gen_prime(bits: int) -> int:
+    while True:
+        a = (rdm.randrange(1 << (bits - 1), 1 << bits) << 1) + 1  # Nombre impair
+        if is_prime_miller_rabin(a):
+            return a
         
-        
-def generate_prime()-> int :
-    print("")
