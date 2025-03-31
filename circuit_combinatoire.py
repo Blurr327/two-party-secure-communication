@@ -1,5 +1,6 @@
 from enum import Enum
 from node import Node
+from __future__ import annotations
 
 
 class Etiquette(Enum):
@@ -69,3 +70,15 @@ class CircuitCombinatoire:
                         return False
                     
         return True
+    
+    def visualize(self) -> None:
+        pass
+    
+    def create_is_a_max(self, n : int, current : int = 1) :
+        if current == n:
+            pass
+        else:
+            node_a = Node({Etiquette.INa})
+            node_b = Node({Etiquette.Inb})
+
+            
