@@ -47,7 +47,7 @@ def calcul_log_discret(g: int, y: int, p: int) -> int | None:
         if resultat_recherche != None and valeur == resultat_recherche[1] :
         # Étape 4 : Calcul de x à partir des indices i et k
             k: int = resultat_recherche[0]
-            return (k * t + i)%(p-1)
+            return (k * t - i)%(p-1)
 
     # Si aucune solution n'est trouvée
     return None
