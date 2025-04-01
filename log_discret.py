@@ -59,7 +59,7 @@ p: int = 29     # Nombre premier (modulo)
 
 resultat: int | None = calcul_log_discret(g, y, p)
 if resultat is not None:
-    print(f"La solution est x = {resultat}")
+    print(f"La solution est x = {resultat}") # c'est censé être 26
 else:
     print("Aucune solution trouvée.")
 liste = [(1,1),(9,2),(4,3),(6,7),(1,9)]
