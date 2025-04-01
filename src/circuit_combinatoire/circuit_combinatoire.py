@@ -17,7 +17,6 @@ class Etiquette(Enum):
     AND = 5
     OUTa = 6
     OUTb = 7
-    relie = 8
 
 class CircuitCombinatoire:
     """sumary_line
@@ -99,7 +98,7 @@ class CircuitCombinatoire:
     
     def create_is_a_max(self, n : int, current : int = 0, previous_node : Node = None, equal_nodes : list[Node] = []) -> Node :
         if current == n:
-            pass
+            return previous_node
         else:
             # Create nodes for the current level
             node_a = Node({Etiquette.INa})
@@ -116,7 +115,7 @@ class CircuitCombinatoire:
             self.edges.append((node_not, node_and))
 
             for node in equal_nodes:
-                node_and_equal = Node({Etiquette.relie})
+                node_and_equal = Node({Etiquette.AND})
                 self.nodes.append(node_and_equal)
                 self.edges.append((node_and, node_and_equal))
                 self.edges.append((node, node_and_equal))
@@ -143,11 +142,30 @@ class CircuitCombinatoire:
 
             # Create the next level
             self.create_is_a_max(n, current + 1, previous_node, equal_nodes)
+
+    def create_max(self, n : int):
+        """ Create a max circuit with n inputs.
+        The circuit will have 2n inputs and 2n outputs.
+        
+        Keyword arguments:
+        n -- number of inputs
+        """
+        
+        node_is_a_max = self.create_is_a_max(n)
+
+        nodes_input = [node for node in self.nodes if Etiquette.INa or Etiquette.INb in node.get_value()]
+
+        for node in nodes_input:
+            # Outputn = Inan | ¬Inbn 
+            node_and_a = Node({Etiquette.AND})
+            node_and_b = Node({Etiquette.AND})
+            node_not = Node({Etiquette.NOT})
+
             
 
 
 if __name__ == "__main__":
     circuit = CircuitCombinatoire(3)
-    circuit.create_is_a_max(3)
+    circuit.create_is_a_max(2)
     circuit.visualize()
             
