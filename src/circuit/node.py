@@ -21,16 +21,11 @@ class Node:
   def get_value(self) :
     return self.value
   
-  def get_indeg(self, edges : list[tuple[Node, Node]]) -> int:
-    indeg = 0
-    for edge in edges:
-      if edge[1] == self:
-        indeg += 1
-    return indeg
+  def get_indeg(self, edges : dict[Node, list[Node]]) -> int:
+    count = 0
+    for neighbors in edges.values():
+        count += neighbors.count(self)
+    return count
   
-  def get_outdeg(self, edges : list[tuple[Node, Node]]) -> int:
-    outdeg = 0
-    for edge in edges:
-      if edge[0] == self:
-        outdeg += 1
-    return outdeg
+  def get_outdeg(self, edges : dict[Node, list[Node]]) -> int:
+    return len(edges[self])
