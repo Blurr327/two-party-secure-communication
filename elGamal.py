@@ -5,15 +5,24 @@ rdm = random.SystemRandom()
 
 # Test de primalité de Miller-Rabin
 def single_test(n: int, a: int) -> bool:
-    exp = n - 1
-    while exp % 2 == 0:  # Tant que exp est pair
-        exp //= 2
-    if pow(a, exp, n) == 1:
+    # Étape 1 : écrire n - 1 = 2^k * m avec m impair
+    m = n - 1
+    k = 0
+    while m % 2 == 0:
+        m //= 2
+        k += 1
+
+    # Étape 2 : calculer a^m mod n
+    x = pow(a, m, n)
+    if x == 1 or x == n - 1:
         return True
-    while exp < n - 1:
-        if pow(a, exp, n) == n - 1:
+
+    # Étape 3 : vérifier a^{2^r * m} ≡ -1 mod n pour r = 0 .. k-1
+    for _ in range(k - 1):
+        x = pow(x, 2, n)
+        if x == n - 1:
             return True
-        exp *= 2
+
     return False
 
 def is_prime_miller_rabin(n: int, k=40) -> bool:
@@ -29,52 +38,48 @@ def is_prime_miller_rabin(n: int, k=40) -> bool:
             return False
     return True
 
+
 #Fonction qui permet de générer un grand nombre premier
 def gen_prime(bits: int) -> int:
     while True:
-        a = (rdm.randrange(1 << (bits - 1), 1 << bits) << 1) + 1  # Nombre impair
+        a = rdm.randrange(1 << (bits - 1), 1 << bits)
+        if a % 2 == 0:
+            a+=1
         if is_prime_miller_rabin(a):
             return a
         
+        
 #Trouver un generateur de Zp* on veut que que g le generateur ait un ordre egal à p-1
 
-#Pollard Rho algorithm
+#Pollard Rho algorithm (trouver des facteurs non triviaux): 
 def pollard_rho(n: int) -> int :
-    #Cas n paire
+    # Si le nombre est pair, on retourne 2 (trivial)
     if n % 2 == 0:
         return 2
-    # we will pick from the range [2, N) 
-    x = (random.randint(0, 2) % (n - 2))
-    y = x
 
-    # the constant in f(x).
-    # Algorithm can be re-run with a different c
-    # if it throws failure for a composite. 
-    c = (random.randint(0, 1) % (n - 1))
+    # Initialisation : choisir une valeur de départ aléatoire pour x dans [2, n-2]
+    x = random.randint(2, n - 2)
+    y = x  # y commence au même point que x
+    c = random.randint(1, 10)  # Constante aléatoire pour la fonction f(x) = x^2 + c mod n
+    d = 1  # Valeur initiale du diviseur
 
-    # Initialize candidate divisor (or result) 
-    d = 1
-    
-    while (d == 1):
-    
-        # Tortoise Move: x(i+1) = f(x(i)) 
-        x = (pow(x, 2, n) + c + n)%n
+    # on continue tant qu'on n'a pas trouvé un diviseur non trivial
+    while d == 1:
+        # Mouvement "tortue" : une seule itération de f(x)
+        x = (pow(x, 2, n) + c) % n
 
-        # Hare Move: y(i+1) = f(f(y(i))) 
-        y = (pow(y, 2, n) + c + n)%n
-        y = (pow(y, 2, n) + c + n)%n
-
-        # check gcd of |x-y| and n 
+        # Mouvement "lièvre" : deux itérations de f(x)
+        y = (pow(y, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
         d = math.gcd(abs(x - y), n)
 
-        # retry if the algorithm fails to find prime factor
-        # with chosen x and c 
-        if (d == n):
-            return pollard_rho(n)
-    
+        # Si le diviseur est égal à n, l'algo a échoué → on recommence depuis le début
+        if d == n:
+            return pollard_rho(n) 
+
     return d
+
     
-#On sait que la taille de la liste doit faire p-1 pour generer Zp*
 def remove_duplicates(lst):
     seen = set()
     return [x for x in lst if not (x in seen or seen.add(x))]
@@ -82,11 +87,10 @@ def remove_duplicates(lst):
     
 def prime_factors(n :int)-> list[int]:
     ret=[]
-    # no prime divisor for 1 
+    
     if (n == 1):
         return ret
 
-    # even number : one of the divisors is 2 
     while n % 2 == 0:
         ret.append(2)
         n //= 2
@@ -107,56 +111,31 @@ def prime_factors(n :int)-> list[int]:
     return remove_duplicates(sorted(ret))
 
 
-a=gen_prime(10)-1
-print(a)
-print(prime_factors(a))
-
-
-def gen(n: int, p: int) -> list[int]:
-    return [pow(n, i, p) for i in range(1,p)]
+def puissances_n_mod_p(n: int, p: int) -> list[int]:
+    l = [pow(n, i, p) for i in range(1,p)]
+    return remove_duplicates(l)
 
 #slide 139 à voir 
 
+"""
+On sait que la taille de la liste doit faire p-1 pour generer Zp*
+
 def is_gen(n: int, p: int) -> bool:
-    if len(remove_duplicates(gen(n,p))) == p-1:
+    if len(remove_duplicates(puissances_n_mod_p(n,p))) == p-1:
         return True
     return False
-
-def generators(p : int ) -> list[int]:
-    ret=[]
-    factors=prime_factors(p-1)
-    
-    for i in range(len(factors)):
-        if is_gen(factors[i],p):
-            ret.append(factors[i])
-    return ret
-
-print(generators(13))
-print(gen(2,13))
-print(is_gen(2,13))
-    
-
-""" 
-print(gen(2,13))
-print(is_gen(2,13))
-print(is_gen(2,12))
-
-p=gen_prime(10)
-g=prime_factors(p-1)
-print(gen(g,p))
-print(is_gen(g,p))
 """
 
+def n_is_gen_Zp(n: int, p: int) -> bool:
     
-
-def prime_fact(n : int):
-    if is_prime_miller_rabin(n):
-        return n
-    
-
-# Slide 145 cours trouver generateur dans Zp*
-def find_generator(p: int) -> int:
     if not is_prime_miller_rabin(p):
-        raise ValueError("p doit être un nombre premier")
+        return False
     
-    q=p-1
+    for q in prime_factors(p - 1):
+        if pow(n, (p - 1) // q, p) == 1:
+            return False
+    return True
+
+
+def generators_Zp_star(p: int) -> list[int]:
+    return [g for g in range(2, p) if n_is_gen_Zp(g, p)]
