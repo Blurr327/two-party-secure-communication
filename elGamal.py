@@ -1,6 +1,6 @@
-import secrets #module utilisé pour générer des grand nb random pour crypto
 import random
 import math
+
 rdm = random.SystemRandom()
 
 # Test de primalité de Miller-Rabin
@@ -115,7 +115,6 @@ def puissances_n_mod_p(n: int, p: int) -> list[int]:
     l = [pow(n, i, p) for i in range(1,p)]
     return remove_duplicates(l)
 
-#slide 139 à voir 
 
 """
 On sait que la taille de la liste doit faire p-1 pour generer Zp*
@@ -139,3 +138,59 @@ def n_is_gen_Zp(n: int, p: int) -> bool:
 
 def generators_Zp_star(p: int) -> list[int]:
     return [g for g in range(2, p) if n_is_gen_Zp(g, p)]
+
+def generate_keys(bits : int):
+    
+    p= gen_prime(bits)
+    g= generators_Zp_star(p)[0]
+    a= rdm.randrange(1, p-1)
+    
+    A = pow(g, a, p)
+    
+    public_key= (p, g, A)
+    private_key= (p, a)
+    
+    return public_key, private_key
+
+def encrypt(public_key, m : int):
+    #on décompose public_key 
+    p, g, A = public_key
+    
+    b = rdm.randrange(1, p-1)
+    
+    B = pow(g, b, p)
+   
+    c = (pow(A, b, p) * m) % p
+    
+    DH_key = (B,c)
+    
+    return DH_key
+
+def decrypt(private_key, DH_key)->int:
+    p, a = private_key
+    B, c = DH_key
+    
+    x = p - 1 - a
+    m = (pow(B , x , p)*c)%p
+    
+    return m
+    
+    
+def test_elgamal(bits: int, msg: int):
+    """
+    Fonction pour tester l'algorithme ElGamal en générant les clés,
+    en chiffrant et en déchiffrant un message.
+
+    """
+    # Générer les clés publiques et privées d'Alice
+    public_key, private_key = generate_keys(bits)
+
+    # Chiffrement du m par Bob
+    crypted_m = encrypt(public_key, msg)
+    print("m chiffré (B, c) = " + str(crypted_m))
+
+    # Déchiffrement du m par Alice
+    decrypted_m = decrypt(private_key, crypted_m)
+    print("m déchiffré = "+ str(decrypted_m))
+    
+test_elgamal(10,5)
