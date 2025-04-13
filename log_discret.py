@@ -41,7 +41,7 @@ def calcul_log_discret(g: int, y: int, p: int) -> int | None:
 # Étape 3 : Recherche des collisions (grands pas)
 
     for i in range(t+1):
-        valeur: int = (y * ((g**(i*t))%p)) % p
+        valeur: int = (y * ((g**i)%p)) % p
         # en théta 1 (askip)
         resultat_recherche : tuple[int,int] = recherche_dichotomique(grands_pas,valeur,0,None)
         if resultat_recherche != None and valeur == resultat_recherche[1] :
@@ -62,6 +62,3 @@ if resultat is not None:
     print(f"La solution est x = {resultat}") # c'est censé être 26
 else:
     print("Aucune solution trouvée.")
-liste = [(1,1),(9,2),(4,3),(6,7),(1,9)]
-resultat2 = recherche_dichotomique(liste,2,0,None)
-print(resultat2)
