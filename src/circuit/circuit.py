@@ -14,6 +14,7 @@ class CircuitCombinatoire:
     """
     nodes : list[Node]
     edges : dict[Node, list[Node]]
+    reverse_edges : dict[Node, list[Node]]
     nodes_input : list[tuple[Node, Node]]
     nodes_output : list[tuple[Node, Node]]
 
@@ -22,6 +23,7 @@ class CircuitCombinatoire:
         self.edges = defaultdict(list)
         self.nodes_input = []
         self.nodes_output = []
+        self.topo_order = []
     
     def add_edge(self, src: Node, dst: Node):
         self.edges[src].append(dst)
@@ -115,6 +117,42 @@ class CircuitCombinatoire:
         # Return the output node
         return node_xor_all
     
+    def compute_reverse_edges(self) -> dict:
+        """ Compute the reverse edges of the circuit """
+   
+        self.reverse_edges = {node: [] for node in self.nodes}
+
+        for src in self.edges:
+            for dest in self.edges[src]:
+                self.reverse_edges[dest].append(src)
+
+        return self.reverse_edges
+    
+    def compute_topological_order(self) -> list[Node]:
+        """Return a topological order of the node"""
+
+        # Number of edges for each node
+        in_degree = {node: 0 for node in self.nodes}
+        for source_node in self.edges:
+            for target_node in self.edges[source_node]:
+                in_degree[target_node] += 1
+
+        # Initialize the queue with nodes that have no incoming edges
+        queue = [node for node in self.nodes if in_degree[node] == 0]
+
+        topo_order = []
+
+        while queue:
+            node = queue.pop(0)
+            topo_order.append(node)
+
+            for neighbor in self.edges.get(node, []):
+                in_degree[neighbor] -= 1
+                if in_degree[neighbor] == 0:
+                    queue.append(neighbor)
+
+        return topo_order
+    
     def run_circuit(self, in_a_values : BinaryList, in_b_values : BinaryList) -> tuple[BinaryList, BinaryList]:
         """ Execute the circuit with values for in a and b
         
@@ -123,50 +161,42 @@ class CircuitCombinatoire:
         in_b -- value for b
         Return: the result of the circuit
         """
-        print(len(self.nodes_input))
+        if len(self.reverse_edges) == 0 :
+            self.compute_reverse_edges()
+
+        # Reset output and inputs values
+        self.reset()
 
         assert len(in_a_values) == len(self.nodes_input), "Input length does not match the number of inputs in the circuit"
         assert len(in_b_values) == len(self.nodes_input), "Input length does not match the number of inputs in the circuit"
-        assert self.verify_circuit(), "The circuit is not valid"
 
-        nodes_processing : list[Node] = []
+        if len(self.topo_order) == 0 :
+            self.topo_order = self.compute_topological_order()
+
         final_nodes : list[Node] = []
 
         # Put the values in the circuit
         for node_a, node_b in self.nodes_input:
             node_a.set_output(in_a_values.pop(0))
             node_b.set_output(in_b_values.pop(0))
-            nodes_processing.extend([node_a, node_b])
 
         # Process the circuit
-        while len(nodes_processing) > 0 :
-            # Get the first node of the list
-            node_processing = nodes_processing.pop(0)
+        for node in self.topo_order :
 
-            output_nodes = self.edges[node_processing]
+            if node.get_output() is None:
+                inputs = [node_before.get_output() for node_before in self.reverse_edges[node]]
+                output = node.get_etiquette().execute(*inputs)
+                node.set_output(output)
 
-            for output_node in output_nodes :
-                # Set the inputs of the output node
-                output_node.add_input(node_processing.get_output())
+                if node.get_etiquette() == Etiquette.OUTa or node.get_etiquette() == Etiquette.OUTb :
 
-                if len(output_node.get_inputs()) == output_node.get_etiquette().get_indeg() :
-
-                    if output_node.get_etiquette() in {Etiquette.OUTa, Etiquette.OUTb}:
-                        output_node.set_output(node_processing.get_output())
-                        final_nodes.append(output_node)
-
-                    else:
-
-                        # Process the output node
-                        output = output_node.get_etiquette().execute(*output_node.get_inputs())
-                        output_node.set_output(output)
-
-                        # Add the output node to the processing list
-                        nodes_processing.append(output_node)
+                    final_nodes.append(node)
 
         return ([node[0].get_output() for node in self.nodes_output], [node[1].get_output() for node in self.nodes_output])
 
-        
+    def reset(self) :
+        for node in self.nodes :
+            node.reset()
         
 
 

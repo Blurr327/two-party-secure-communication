@@ -3,14 +3,14 @@ from circuit.node import Node
 from circuit.etiquette import Etiquette
 
 class CircuitMax(CircuitCombinatoire) :
-    nodes_input : list[tuple[Node, Node]]
-
     def __init__(self, n : int):
         """ Create a max circuit with n inputs.
         """
         super().__init__()
-        self.nodes_input = []
         self.create_max(n)
+        assert self.verify_circuit(), "The circuit is not valid"
+        self.compute_reverse_edges()
+        self.topo_order = self.compute_topological_order()
 
     def create_is_a_max(self, n : int, current : int = 0, previous_node : Node = None, equal_nodes : list[Node] = []) -> Node :
         """ 

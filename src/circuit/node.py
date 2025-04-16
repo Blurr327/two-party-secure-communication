@@ -2,12 +2,7 @@ from __future__ import annotations
 from circuit.etiquette import Etiquette
 
 class Node:
-  """sumary_line
-  
-  Keyword arguments:
-  argument -- description
-  Return: return_description
-  """
+  """ This class represents a Node """
   
   def __init__(self, etiquette : Etiquette, next_node : Node | None = None):
     self.etiquette = etiquette
@@ -30,12 +25,6 @@ class Node:
   def set_output(self, value):
     self.output = value
 
-  def get_inputs(self):
-    return self.inputs
-  
-  def add_input(self, input):
-    self.inputs.append(input)
-
   def get_indeg(self, edges : dict[Node, list[Node]]) -> int:
     count = 0
     for neighbors in edges.values():
@@ -44,3 +33,7 @@ class Node:
   
   def get_outdeg(self, edges : dict[Node, list[Node]]) -> int:
     return len(edges[self])
+  
+  def reset(self) :
+    self.output = None
+    self.inputs = []

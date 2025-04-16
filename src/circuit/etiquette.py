@@ -35,6 +35,8 @@ class Etiquette(Enum):
                 return a ^ b
             case s if s == Etiquette.AND:
                 return a & b
+            case s if s in {Etiquette.OUTa, Etiquette.OUTb, Etiquette.INa, Etiquette.INb}:
+                return a
         
 
         
