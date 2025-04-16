@@ -3,7 +3,6 @@ from circuit_combinatoire.circuit_max import CircuitMax
 from utils.binary import max
 
 
-
 def test_max():
     """ Test the max function.
     """
@@ -24,7 +23,7 @@ def test_max():
     assert max(a, b) == a
 
 def test_circuit_max() :
-    """ Test the circuit max """
+    """ Test the circuit max8 """
     circuit = CircuitMax(8)
 
     # Test the circuit with all the inputs possible

@@ -2,38 +2,32 @@ from __future__ import annotations
 from circuit.etiquette import Etiquette
 
 class Node:
-  """ This class represents a Node """
+  """ This class represents a Node with a tag for the type of logic gate """
   
-  def __init__(self, etiquette : Etiquette, next_node : Node | None = None):
+  def __init__(self, etiquette : Etiquette):
     self.etiquette = etiquette
-    self.next_node = next_node
-    self.inputs = []
     self.output = None
-    
-  def set_next_node(self, next_node : Node):
-    self.next_node = next_node
-    
-  def get_next_node(self) -> Node:
-    return self.next_node
   
   def get_etiquette(self) -> Etiquette:
+    """ Return the tag of the node """
     return self.etiquette
   
   def get_output(self) :
+    """ Return the output value of the node """
     return self.output
   
   def set_output(self, value):
+    """ Change the ouput value of the node """
     self.output = value
 
-  def get_indeg(self, edges : dict[Node, list[Node]]) -> int:
-    count = 0
-    for neighbors in edges.values():
-        count += neighbors.count(self)
-    return count
+  def get_indeg(self, reverse_edges : dict[Node, list[Node]]) -> int:
+    """ return the number of nodes before """
+    return len(reverse_edges[self])
   
   def get_outdeg(self, edges : dict[Node, list[Node]]) -> int:
+    """ return the number of nodes after """
     return len(edges[self])
   
   def reset(self) :
+    """ Reset the value of the output """
     self.output = None
-    self.inputs = []

@@ -2,11 +2,7 @@ from enum import Enum
 from utils.binary import Bit
 
 class Etiquette(Enum):
-    """sumary_line
-    
-    Keyword arguments:
-    argument -- description
-    Return: return_description
+    """ This Enum represents the logic gates and inputs/outputs of the circuit.
     """
     INa = 1
     INb = 2
@@ -17,6 +13,7 @@ class Etiquette(Enum):
     OUTb = 7
 
     def get_indeg(self) -> int:
+        """ Get the indegree of the node. """
         match self :
             case s if s in {Etiquette.INa, Etiquette.INb}:
                 return 0
@@ -28,6 +25,7 @@ class Etiquette(Enum):
                 return 1
             
     def execute(self, a : Bit, b : Bit = None) :
+        """ Execute the logic gate """
         match self : 
             case s if s == Etiquette.NOT:
                 return 1 - a

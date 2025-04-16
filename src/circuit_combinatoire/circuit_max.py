@@ -8,9 +8,9 @@ class CircuitMax(CircuitCombinatoire) :
         """
         super().__init__()
         self.create_max(n)
-        assert self.verify_circuit(), "The circuit is not valid"
         self.compute_reverse_edges()
         self.topo_order = self.compute_topological_order()
+        assert self.verify_circuit(), "The circuit is not valid"
 
     def create_is_a_max(self, n : int, current : int = 0, previous_node : Node = None, equal_nodes : list[Node] = []) -> Node :
         """ 
@@ -123,12 +123,6 @@ class CircuitMax(CircuitCombinatoire) :
             self.add_edge(node_or, node_out_a)    
             self.add_edge(node_or, node_out_b)
 
-
-        # Verify the circuit
-        if not self.verify_circuit():
-            raise ValueError("The circuit is not valid")
-
         # Return the output nodes
         return [node_out_a, node_out_b]
-
             

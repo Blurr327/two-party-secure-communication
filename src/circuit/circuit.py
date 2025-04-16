@@ -6,14 +6,12 @@ from collections import defaultdict
 from utils.binary import BinaryList
 
 class CircuitCombinatoire:
-    """sumary_line
+    """ CircuitCombinatoire is a class that represents a combinatorial circuit. It provides methods to construct, verify, 
+    visualize, and execute the circuit. The circuit is composed of nodes and edges, where nodes represent logical 
+    operations or inputs/outputs, and edges represent connections between nodes. """  
     
-    Keyword arguments:
-    argument -- description
-    Return: return_description
-    """
-    nodes : list[Node]
-    edges : dict[Node, list[Node]]
+    nodes : list[Node] 
+    edges : dict[Node, list[Node]] 
     reverse_edges : dict[Node, list[Node]]
     nodes_input : list[tuple[Node, Node]]
     nodes_output : list[tuple[Node, Node]]
@@ -29,9 +27,10 @@ class CircuitCombinatoire:
         self.edges[src].append(dst)
 
     def verify_circuit(self) -> bool:
+        """ Verify that the circuit respect the caracteristic of a combinatorial circuit """
         for node in self.nodes:
             outdeg = node.get_outdeg(self.edges)
-            indeg = node.get_indeg(self.edges)
+            indeg = node.get_indeg(self.reverse_edges)
 
             etiquette = node.get_etiquette()
 
@@ -95,8 +94,8 @@ class CircuitCombinatoire:
         dot.render('circuit_graph', view=True, format='png')
 
     def create_or(self, node_1 : Node, node_2 : Node) -> Node:
-        """ Create a OR circuit with two inputs. OR = XOR(AND(node_1, node_2), NOT(node_1))
-        The circuit will have 2 inputs and 1 output.
+        """ Create a OR circuit with two inputs. OR = XOR(AND(node_1, node_2), XOR(node_1, node_2))
+        The circuit will have 2 inputs nodes and 1 output node
         """
         # Create nodes for OR operation
         node_xor_all = Node(Etiquette.XOR)
@@ -129,7 +128,7 @@ class CircuitCombinatoire:
         return self.reverse_edges
     
     def compute_topological_order(self) -> list[Node]:
-        """Return a topological order of the node"""
+        """Return a topological order of the nodes"""
 
         # Number of edges for each node
         in_degree = {node: 0 for node in self.nodes}
@@ -154,12 +153,12 @@ class CircuitCombinatoire:
         return topo_order
     
     def run_circuit(self, in_a_values : BinaryList, in_b_values : BinaryList) -> tuple[BinaryList, BinaryList]:
-        """ Execute the circuit with values for in a and b
+        """ Execute the circuit with values for a and b 
         
         Keyword arguments:
         in_a -- value for a
         in_b -- value for b
-        Return: the result of the circuit
+        Return: the result of the circuit for a and b 
         """
         if len(self.reverse_edges) == 0 :
             self.compute_reverse_edges()
