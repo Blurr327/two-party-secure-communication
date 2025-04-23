@@ -1,0 +1,4 @@
+# Ignorer les fichiers compilés par Python
+__pycache__/
+*.py[cod]
+*$py.class
