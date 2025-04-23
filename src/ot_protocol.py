@@ -1,9 +1,9 @@
-from elGamal import generate_keys,encrypt,decrypt
+from src.elGamal import generate_keys,encrypt,decrypt
 import random
 
 rdm = random.SystemRandom()
 
-def ot_protocole(bits):
+def ot_protocol(bits):
     
     # Etape 1 :
     
@@ -75,8 +75,3 @@ def ot_protocole(bits):
     
     print(f"Bob déchiffre et obtient m{b} = {m_decoded}")
     
-
-if __name__ == "__main__":
-    print("==== DÉBUT DU PROTOCOLE OT ====\n")
-    ot_protocole(10)
-    print("\n==== FIN DU PROTOCOLE OT ====")

@@ -175,22 +175,3 @@ def decrypt(private_key, DH_key)->int:
     
     return m
     
-    
-def test_elgamal(bits: int, msg: int):
-    """
-    Fonction pour tester l'algorithme ElGamal en générant les clés,
-    en chiffrant et en déchiffrant un message.
-
-    """
-    # Générer les clés publiques et privées d'Alice
-    public_key, private_key = generate_keys(bits)
-
-    # Chiffrement du m par Bob
-    crypted_m = encrypt(public_key, msg)
-    print("m chiffré (B, c) = " + str(crypted_m))
-
-    # Déchiffrement du m par Alice
-    decrypted_m = decrypt(private_key, crypted_m)
-    print("m déchiffré = "+ str(decrypted_m))
-    
-test_elgamal(10,5)
