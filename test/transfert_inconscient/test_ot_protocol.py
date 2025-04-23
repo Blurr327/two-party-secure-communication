@@ -1,5 +1,5 @@
-from src.ot_protocol import ot_protocol
-from src.elGamal import generate_keys, encrypt, decrypt
+from transfert_inconscient.ot_protocol import ot_protocol
+from transfert_inconscient.elGamal import generate_keys, encrypt, decrypt
 import random
 
 rdm = random.SystemRandom()

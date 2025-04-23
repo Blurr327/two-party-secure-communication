@@ -1,5 +1,5 @@
 import pytest
-from elGamal import generate_keys, encrypt, decrypt
+from transfert_inconscient.elGamal import generate_keys, encrypt, decrypt
 
 def test_elgamal(bits=10, msg=5):
     """

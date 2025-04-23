@@ -1,4 +1,5 @@
-from src.elGamal import generate_keys,encrypt,decrypt
+import pytest
+from transfert_inconscient.elGamal import generate_keys,encrypt,decrypt
 import random
 
 rdm = random.SystemRandom()
