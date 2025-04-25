@@ -1,4 +1,3 @@
-import pytest
 from transfert_inconscient.elGamal import generate_keys,encrypt,decrypt
 import random
 
@@ -102,4 +101,6 @@ def ot_protocol(bits):
     m_decoded = bob_decrypt(p, a, b, c0, c1)
     
     print(f"Bob déchiffre et obtient m{b} = {m_decoded}")
+
+    return m0, m1, b, m_decoded
     

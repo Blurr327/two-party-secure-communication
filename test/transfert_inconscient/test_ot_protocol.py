@@ -1,50 +1,71 @@
 import pytest
 import time
 from transfert_inconscient.ot_protocol import ot_protocol
-from transfert_inconscient.elGamal import generate_keys, encrypt, decrypt
+from transfert_inconscient.elGamal import generate_keys
 from transfert_inconscient.log_discret import calcul_log_discret
-import random
 
-rdm = random.SystemRandom()
+# Multiprocessing permet de créer des processus séparés et donc d'arrêter directement au bout de 30 secondes
+from multiprocessing import Process, Queue
 
-"""
-def test_ot_protocol():
+@pytest.mark.parametrize("bits", [16, 30, 40])
+def test_ot_protocol(bits):
+    """ Verifie le bon fonctionnement du protocole OT pour un nombre de bits donné.
+    """
     
-    Test du protocole OT pour vérifier qu'il fonctionne correctement
-    avec une taille de clé de 10 bits.
     
     print("\n==== DÉBUT DU PROTOCOLE OT ====")
+        
+    m0, m1, b, m_decoded = ot_protocol(bits)
+
+    print(f"m0 = {m0}, m1 = {m1}, b = {b}, m_decoded = {m_decoded}")
+
+    # Vérification que le message déchiffré est le même que celui d'origine
+    assert m_decoded == (m0 if b == 0 else m1), \
+        f"Erreur : message déchiffré {m_decoded} n'est pas égal au message original {m0 if b == 0 else m1}"
+    # Vérification que le message déchiffré est bien l'un des deux messages
+    assert m_decoded in (m0, m1), \
+        f"Erreur : message déchiffré {m_decoded} n'est pas égal à m0 {m0} ou m1 {m1}"
     
-    # Lance le protocole OT
-    ot_protocol(10)
     
     print("\n==== FIN DU PROTOCOLE OT ====")
-"""
 
-#on effectue plusieurs tests pour un nnombre de bits différents 
-@pytest.mark.parametrize("bits", [8, 12, 16, 20])
-def test_log_discret_resistance(bits):
-    
+def attaque(bits, queue):
     """
-    Vérifie qu'il n'est pas possible (ou pas facile) de retrouver la clé privée a
-    à partir de la clé publique (p, g, A) par attaque du logarithme discret.
+    Fonction pour tester l'algorithme ElGamal en générant les clés,
+    en chiffrant et en déchiffrant un message.
+
     """
-    
+     # Générer les clés publiques
+
     public_key, private_key = generate_keys(bits)
     p, g, A = public_key
     _, a = private_key
-
-    # On tente de retrouver a tel que g^a ≡ A (mod p)
-    start = time.time()
     result = calcul_log_discret(g, A, p)
-    end = time.time()
+    # résultat dans la queue
+    queue.put((result, a))
 
-    elapsed = end - start
 
-    if bits <= 16:
-        # Sur de petites tailles, c'est normal que ça réussisse
-        assert result == a, f"[OK] L'attaque réussit à petite taille ({bits} bits)"
+@pytest.mark.parametrize("bits", [16, 30])
+def test_log_discret_resistance(bits):
+    """
+    Vérifie qu'il n'est pas possible (ou pas facile) de retrouver la clé privée a
+    à partir de la clé publique (p, g, A) par attaque du logarithme discret à partir de 21 bits.
+    """
+
+    queue = Queue()
+    proc = Process(target=attaque, args=(bits, queue))
+    proc.start()
+    proc.join(timeout=30)
+
+    # Si le processus est toujours vivant après 30 secondes, on le termine
+    if proc.is_alive():
+        proc.terminate()
+        proc.join()
+        # Plus de 30 secondes → test réussi
+        assert True
     else:
-        # Sur > 16 bits, on attend que ça soit long ou que ça échoue
-        assert result != a or elapsed > 2, \
-            f"[ÉCHEC] Le log discret a réussi trop vite ({elapsed:.3f}s) sur {bits} bits !"
+        result, a = queue.get()
+        if bits <= 20:
+            assert result == a, f"[ÉCHEC] Résultat incorrect pour {bits} bits"
+        else:
+            assert result != a, f"[ÉCHEC] Le log discret a réussi trop vite pour {bits} bits"

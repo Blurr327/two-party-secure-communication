@@ -1,7 +1,8 @@
 import pytest
 from transfert_inconscient.elGamal import generate_keys, encrypt, decrypt
 
-def test_elgamal(bits=10, msg=5):
+@pytest.mark.parametrize("bits", [16, 30, 40])
+def test_elgamal(bits, msg=5):
     """
     Fonction pour tester l'algorithme ElGamal en générant les clés,
     en chiffrant et en déchiffrant un message.

@@ -136,13 +136,15 @@ def n_is_gen_Zp(n: int, p: int) -> bool:
     return True
 
 
-def generators_Zp_star(p: int) -> list[int]:
-    return [g for g in range(2, p) if n_is_gen_Zp(g, p)]
+def generators_Zp_star(p: int) -> int:
+    for g in range(2, p):
+        if n_is_gen_Zp(g, p):
+            return g
 
 def generate_keys(bits : int):
     
     p= gen_prime(bits)
-    g= generators_Zp_star(p)[0]
+    g= generators_Zp_star(p)
     a= rdm.randrange(1, p-1)
     
     A = pow(g, a, p)
