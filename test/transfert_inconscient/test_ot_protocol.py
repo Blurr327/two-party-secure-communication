@@ -7,7 +7,7 @@ from transfert_inconscient.log_discret import calcul_log_discret
 # Multiprocessing permet de créer des processus séparés et donc d'arrêter directement au bout de 30 secondes
 from multiprocessing import Process, Queue
 
-@pytest.mark.parametrize("bits", [16, 30, 40])
+@pytest.mark.parametrize("bits", [16, 50, 128])
 def test_ot_protocol(bits):
     """ Verifie le bon fonctionnement du protocole OT pour un nombre de bits donné.
     """
@@ -45,7 +45,7 @@ def attaque(bits, queue):
     queue.put((result, a))
 
 
-@pytest.mark.parametrize("bits", [16, 30])
+@pytest.mark.parametrize("bits", [16, 128])
 def test_log_discret_resistance(bits):
     """
     Vérifie qu'il n'est pas possible (ou pas facile) de retrouver la clé privée a
@@ -55,7 +55,7 @@ def test_log_discret_resistance(bits):
     queue = Queue()
     proc = Process(target=attaque, args=(bits, queue))
     proc.start()
-    proc.join(timeout=30)
+    proc.join(timeout=60)
 
     # Si le processus est toujours vivant après 30 secondes, on le termine
     if proc.is_alive():
