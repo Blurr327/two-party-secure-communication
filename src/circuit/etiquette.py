@@ -1,5 +1,5 @@
 from enum import Enum
-from utils.binary import Bit
+from src.utils.binary import Bit
 
 class Etiquette(Enum):
     """ This Enum represents the logic gates and inputs/outputs of the circuit.
@@ -23,10 +23,10 @@ class Etiquette(Enum):
                 return 2
             case s if s in {Etiquette.OUTa, Etiquette.OUTb}:
                 return 1
-            
+
     def execute(self, a : Bit, b : Bit = None) :
         """ Execute the logic gate """
-        match self : 
+        match self :
             case s if s == Etiquette.NOT:
                 return 1 - a
             case s if s == Etiquette.XOR:
@@ -35,6 +35,5 @@ class Etiquette(Enum):
                 return a & b
             case s if s in {Etiquette.OUTa, Etiquette.OUTb, Etiquette.INa, Etiquette.INb}:
                 return a
-        
 
-        
+

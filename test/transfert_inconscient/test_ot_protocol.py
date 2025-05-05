@@ -1,8 +1,8 @@
 import pytest
 import time
-from transfert_inconscient.ot_protocol import ot_protocol
-from transfert_inconscient.elGamal import generate_keys
-from transfert_inconscient.log_discret import calcul_log_discret
+from src.transfert_inconscient.ot_protocol import ot_protocol
+from src.transfert_inconscient.elGamal import generate_keys
+from src.transfert_inconscient.log_discret import calcul_log_discret
 
 # Multiprocessing permet de créer des processus séparés et donc d'arrêter directement au bout de 30 secondes
 from multiprocessing import Process, Queue
@@ -11,10 +11,10 @@ from multiprocessing import Process, Queue
 def test_ot_protocol(bits):
     """ Verifie le bon fonctionnement du protocole OT pour un nombre de bits donné.
     """
-    
-    
+
+
     print("\n==== DÉBUT DU PROTOCOLE OT ====")
-        
+
     m0, m1, b, m_decoded = ot_protocol(bits)
 
     print(f"m0 = {m0}, m1 = {m1}, b = {b}, m_decoded = {m_decoded}")
@@ -25,8 +25,8 @@ def test_ot_protocol(bits):
     # Vérification que le message déchiffré est bien l'un des deux messages
     assert m_decoded in (m0, m1), \
         f"Erreur : message déchiffré {m_decoded} n'est pas égal à m0 {m0} ou m1 {m1}"
-    
-    
+
+
     print("\n==== FIN DU PROTOCOLE OT ====")
 
 def attaque(bits, queue):

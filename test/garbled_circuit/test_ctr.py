@@ -1,6 +1,6 @@
 import pytest
 from Crypto.Random import get_random_bytes
-from garbled_circuit.ctr import encrypt_ctr, decrypt_ctr, BIT_BLOCK_SIZE
+from src.garbled_circuit.ctr import encrypt_ctr, decrypt_ctr, BIT_BLOCK_SIZE
 
 # Test basic encryption and decryption
 def test_ctr_encrypt_decrypt():

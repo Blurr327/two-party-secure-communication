@@ -1,6 +1,6 @@
 import pytest
-from circuit_combinatoire.circuit_max import CircuitMax
-from utils.binary import max
+from src.circuit_combinatoire.circuit_max import CircuitMax
+from src.utils.binary import max
 
 
 def test_max():
@@ -29,13 +29,13 @@ def test_circuit_max() :
     # Test the circuit with all the inputs possible
     for i in range(256) :
         for j in range(256) :
-            
+
             a = [(i >> k) & 1 for k in range(8)]
             b = [(j >> k) & 1 for k in range(8)]
 
             a_copy = a.copy()
             b_copy = b.copy()
-            
+
             out_a, out_b = circuit.run_circuit(a, b)
 
             assert out_a == max(a_copy, b_copy), f"Output A is not correct :  {out_a} != {max(a_copy, b_copy)}"

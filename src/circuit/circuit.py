@@ -1,17 +1,17 @@
 from __future__ import annotations
-from circuit.node import Node
 from graphviz import Digraph
-from circuit.etiquette import Etiquette
+from src.circuit.node import Node
+from src.circuit.etiquette import Etiquette
+from src.utils.binary import BinaryList
 from collections import defaultdict
-from utils.binary import BinaryList
 
 class CircuitCombinatoire:
-    """ CircuitCombinatoire is a class that represents a combinatorial circuit. It provides methods to construct, verify, 
-    visualize, and execute the circuit. The circuit is composed of nodes and edges, where nodes represent logical 
-    operations or inputs/outputs, and edges represent connections between nodes. """  
-    
-    nodes : list[Node] 
-    edges : dict[Node, list[Node]] 
+    """ CircuitCombinatoire is a class that represents a combinatorial circuit. It provides methods to construct, verify,
+    visualize, and execute the circuit. The circuit is composed of nodes and edges, where nodes represent logical
+    operations or inputs/outputs, and edges represent connections between nodes. """
+
+    nodes : list[Node]
+    edges : dict[Node, list[Node]]
     reverse_edges : dict[Node, list[Node]]
     nodes_input : list[tuple[Node, Node]]
     nodes_output : list[tuple[Node, Node]]
@@ -19,10 +19,11 @@ class CircuitCombinatoire:
     def __init__(self):
         self.nodes = []
         self.edges = defaultdict(list)
+        self.reverse_edges = []
         self.nodes_input = []
         self.nodes_output = []
         self.topo_order = []
-    
+
     def add_edge(self, src: Node, dst: Node):
         self.edges[src].append(dst)
 
@@ -50,17 +51,17 @@ class CircuitCombinatoire:
                 case s if s in {Etiquette.OUTa, Etiquette.OUTb}:
                     if outdeg != 0:
                         return False
-                    
+
         return True
-    
+
     def visualize(self) -> None:
         """ Visualize the circuit using graphviz.
         """
-        
+
         dot = Digraph()
 
         for node in self.nodes:
-            label = node.get_etiquette().name 
+            label = node.get_etiquette().name
             if node.get_output() is not None:
                 label += f" : {node.get_output()}"
             dot.node(str(id(node)), label)
@@ -115,10 +116,10 @@ class CircuitCombinatoire:
 
         # Return the output node
         return node_xor_all
-    
+
     def compute_reverse_edges(self) -> dict:
         """ Compute the reverse edges of the circuit """
-   
+
         self.reverse_edges = {node: [] for node in self.nodes}
 
         for src in self.edges:
@@ -126,7 +127,7 @@ class CircuitCombinatoire:
                 self.reverse_edges[dest].append(src)
 
         return self.reverse_edges
-    
+
     def compute_topological_order(self) -> list[Node]:
         """Return a topological order of the nodes"""
 
@@ -151,14 +152,14 @@ class CircuitCombinatoire:
                     queue.append(neighbor)
 
         return topo_order
-    
+
     def run_circuit(self, in_a_values : BinaryList, in_b_values : BinaryList) -> tuple[BinaryList, BinaryList]:
-        """ Execute the circuit with values for a and b 
-        
+        """ Execute the circuit with values for a and b
+
         Keyword arguments:
         in_a -- value for a
         in_b -- value for b
-        Return: the result of the circuit for a and b 
+        Return: the result of the circuit for a and b
         """
         if len(self.reverse_edges) == 0 :
             self.compute_reverse_edges()
@@ -196,6 +197,6 @@ class CircuitCombinatoire:
     def reset(self) :
         for node in self.nodes :
             node.reset()
-        
+
 
 

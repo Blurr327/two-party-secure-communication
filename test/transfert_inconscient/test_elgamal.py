@@ -1,5 +1,5 @@
 import pytest
-from transfert_inconscient.elGamal import generate_keys, encrypt, decrypt
+from src.transfert_inconscient.elGamal import generate_keys, encrypt, decrypt
 
 @pytest.mark.parametrize("bits", [16, 30, 40])
 def test_elgamal(bits, msg=5):
@@ -18,6 +18,6 @@ def test_elgamal(bits, msg=5):
     # Déchiffrement du m par Alice
     decrypted_m = decrypt(private_key, crypted_m)
     print("m déchiffré = ", decrypted_m)
-    
+
     # Vérification que le message déchiffré est le même que celui d'origine
     assert decrypted_m == msg, f"Erreur : message déchiffré {decrypted_m} n'est pas égal au message original {msg}"

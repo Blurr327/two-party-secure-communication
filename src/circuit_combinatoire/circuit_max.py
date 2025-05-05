@@ -1,6 +1,6 @@
-from circuit.circuit import CircuitCombinatoire
-from circuit.node import Node
-from circuit.etiquette import Etiquette
+from src.circuit.circuit import CircuitCombinatoire
+from src.circuit.node import Node
+from src.circuit.etiquette import Etiquette
 
 class CircuitMax(CircuitCombinatoire) :
     def __init__(self, n : int):
@@ -13,7 +13,7 @@ class CircuitMax(CircuitCombinatoire) :
         assert self.verify_circuit(), "The circuit is not valid"
 
     def create_is_a_max(self, n : int, current : int = 0, previous_node : Node = None, equal_nodes : list[Node] = []) -> Node :
-        """ 
+        """
             Create a is a > b circuit with n inputs.
 
             Keyword arguments:
@@ -53,7 +53,7 @@ class CircuitMax(CircuitCombinatoire) :
                 self.add_edge(node_and, node_and_equal)
                 self.add_edge(node, node_and_equal)
                 node_and = node_and_equal
-                
+
 
             # create egality nodes for current level
             if (current < n -1 ) :
@@ -66,11 +66,11 @@ class CircuitMax(CircuitCombinatoire) :
                 equal_nodes.append(node_egal_not)
 
             # Connect to the previous level
-            if previous_node is not None:        
+            if previous_node is not None:
                 node_xor_or = self.create_or(previous_node, node_and)
                 previous_node = node_xor_or
             else:
-                # First 
+                # First
                 previous_node = node_and
 
 
@@ -81,11 +81,11 @@ class CircuitMax(CircuitCombinatoire) :
     def create_max(self, n : int):
         """ Create a max circuit with n inputs.
         The circuit will have 2n inputs and 2n outputs.
-        
+
         Keyword arguments:
         n -- number of inputs
         """
-        
+
         node_is_a_max = self.create_is_a_max(n)
         print(node_is_a_max)
 
@@ -120,9 +120,9 @@ class CircuitMax(CircuitCombinatoire) :
             self.nodes_output.append((node_out_a, node_out_b))
 
             # Connect to the output nodes
-            self.add_edge(node_or, node_out_a)    
+            self.add_edge(node_or, node_out_a)
             self.add_edge(node_or, node_out_b)
 
         # Return the output nodes
         return [node_out_a, node_out_b]
-            
+
