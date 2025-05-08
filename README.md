@@ -1,93 +1,68 @@
 # Calcul biparti et transfert inconscient groupe 2
 
+## Installer les bibliothèques nécessaires
 
+Il suffit d'exécuter la commande suivante : `pip install -r requirments.txt`
 
-## Getting started
+## Tester le code
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Il suffit d'exécuter la commande suivante : `python -m pytest test/`
+C'est également possible de tester uniquement une partie du code, par exemple :
+`python -m pytest test/garbled_circuit`
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+# Circuit Brouillé - BEN EL MOSTAPHA Mohamed
 
-## Add your files
+## Vue général
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Le fichier `ctr.py`
 
-```
-cd existing_repo
-git remote add origin https://moule.informatique.univ-paris-diderot.fr/herson/calcul-biparti-et-transfert-inconscient-groupe-2.git
-git branch -M main
-git push -uf origin main
-```
+Dans le package `garbled_circuit`, j'ai implémenté le chiffrement en mode compteur en utilisant la bibliothèque `pycryptodome` pour accéder à la fonction AES classique.
 
-## Integrate with your tools
+### Le fichier `garbler.py`
 
-- [ ] [Set up project integrations](https://moule.informatique.univ-paris-diderot.fr/herson/calcul-biparti-et-transfert-inconscient-groupe-2/-/settings/integrations)
+Ce fichier implémente une variation du circuit brouillé dite _"Point and Permute"_. Contrairement à la version classqiue, qui utilise un MAC pour confirmer le bon fonctionnement du déchiffrement, cette version utilise les derniers bits des labels pour calculer la position exact à déchiffrer dans la table de vérité.
 
-## Collaborate with your team
+Exemple :
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Label 1 : 101001....1 (en binaire)
+Label 2 : 101000....0 (en binaire)
 
-## Test and Deploy
+Position à déchiffrer : 10 (soit 2 en décimale)
 
-Use the built-in continuous integration in GitLab.
+## Détails de l'implémentation
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Mode compteur
 
-***
+`encrypt_ctr(key: int, message: int, nonce: int)` : Prend une clé de longueur 128 bits, un message de longueur quelconque et une valeur aléatoire. Le message
+est divisé en blocs de 128 bits, éventuellement avec du bourage. La bloque i est masqué (mis en xor avec une valeur) par un masque généré à l'aide de la valeur `nonce + i`. Le masque n'est autre que le chiffrement de `nonce + i` par la fonction AES standard.
 
-# Editing this README
+### Circuit Brouillé
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+`generate_wire_labels(circuit : CircuitCombinatoire)` : étant donné un circuit, produit une table qui associé à chaque noeud un tuple `(label0, label1)` ou les labels sont des valeurs aléatoire de longueur inférieure ou égale à 128 bits, sauf pour les noeud de sorties qui sont associé à `(0, 1)`.
+`label0` : représente la valuer 0 pour le noeud concerné dans le circuit brouillé
+`label1` : représente la valuer 1 pour le noeud concerné dans le circuit brouillé
+Le dernier bit de `label0`, soit `label0 & 1`, est opposé à celui de `label1`. Cette propriété sera utilisé pour l'implémentation du `Point and Permute` décrite çi-dessus.
 
-## Suggestions for a good README
+`get_index_from_input_labels(label_input_list)` : étant donnée une liste de labels, calcule la position généré en concatenant le dernier bit du label i à la position i du résultat.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+`encrypt_output_label_with_input_labels(label_input_list, output_label, nonce)` : étant donnée une liste de labels, un label de sortie et une valeur aléatoire, chiffre le label de sortie `len(label_input_list)` fois, en utilisant le i-ème label comme clé et le résultat du dernier chiffrement comme message pour la fonction `encrypt_ctr`.
 
-## Name
-Choose a self-explaining name for your project.
+`decrypt_encrypted_output_label_with_input_labels(label_input_list, encrypted_output_label, nonce)` : applique le même algorithme que la fonction de chiffrement en inversant la liste de labels.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+`binary_to_label_list(binary_list, label_tuples)` :
+étant données une liste de valeurs binaire et une liste de tuples `(label0, label1)`, produit une liste où chaque 1 ou 0 à la position i est remplacé par label0 ou label1 respectivement.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+`get_input_possibilities(node : Node)` : Selon l'étiquette du noeud, renvoie une liste d'entrées possibles.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+`garble(circuit : CircuitCombinatoire, wire_labels, nonce)` : Pour chaque noeud du circuit :
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+1. Retrouve ses noeuds d'input
+2. Initialise une table de hachage qui va associer à chaque noeud une table de vérité
+3. Calcule les inputs possible selon le type du noeud, et pour chaque possibilité :
+   3.1. Calcule l'output pour cette possiblité et le traduit en label
+   3.2. traduit la liste d'input en labels
+   3.3. Utilise cette liste de labels pour chiffrer le label d'output en utilisant `encrypt_output_label_with_input_labels`
+   3.4. Met le résultat de ce chiffrement en la position calculé en utilisant `get_index_from_input_labels`
+4. Renvoie la table de hachage qui associe à chaque noeud sa table de vérité
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+`evaluate(circuit : CircuitCombinatoire, garbled_circuit_tables, wire_values, nonce)` : `wire_values` est une table de hachage qui associe à chaque noeud sa valeur courante (son état). On s'attend à ce que les noeud d'input dans cette table soient initialise avec les labels souhaités. Pour chaque noeud, la fonction calcule la liste de label d'entré et l'utilise pour trouver la position à déchiffrer sur la table de tables de vérités.
