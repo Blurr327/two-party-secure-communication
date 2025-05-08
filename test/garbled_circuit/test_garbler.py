@@ -83,17 +83,17 @@ def test_garble_evaluate():
   assert resb == [1]
 
 def test_garble_evaluate_on_max_circuit():
-  circuit = CircuitMax(4)
+  circuit = CircuitMax(8)
   wire_labels = generate_wire_labels(circuit)
   tables = garble(circuit, wire_labels, 0)
-  input_a = [1, 0, 1, 0]
-  input_b = [1, 1, 0, 0]
+  input_a = [1, 0, 1, 0, 0, 1, 0, 0]
+  input_b = [1, 1, 0, 0, 0, 0, 0, 1]
   wire_values = {}
   for i in range(len(circuit.nodes_input)):
     nodea, nodeb = circuit.nodes_input[i]
     wire_values[nodea] = wire_labels[nodea][input_a[i]]
     wire_values[nodeb] = wire_labels[nodeb][input_b[i]]
   resa, resb = evaluate(circuit, tables, wire_values, 0)
-  assert resa == [1, 1, 0, 0]
-  assert resb == [1, 1, 0, 0]
+  assert resa == [1, 1, 0, 0, 0, 0, 0, 1]
+  assert resb == [1, 1, 0, 0, 0, 0, 0, 1]
 
