@@ -1,68 +1,225 @@
-# Calcul biparti et transfert inconscient groupe 2
+# Garbled Circuits & Oblivious Transfer
 
-## Installer les bibliothèques nécessaires
+This project implements a **garbled circuit protocol** along with supporting cryptographic components.  
+It was developed as part of a practical project on secure computation.
 
-Il suffit d'exécuter la commande suivante : `pip install -r requirments.txt`
+The implementation includes:
+- AES encryption in CTR mode
+- A garbled circuit implementation using the **Point-and-Permute** optimization
+- Unit tests using `pytest`
 
-## Tester le code
+---
 
-Il suffit d'exécuter la commande suivante : `python -m pytest test/`
-C'est également possible de tester uniquement une partie du code, par exemple :
-`python -m pytest test/garbled_circuit`
+# Installation
 
-# Circuit Brouillé - BEN EL MOSTAPHA Mohamed
+Install the required Python libraries with:
 
-## Vue général
+```bash
+pip install -r requirements.txt
+```
 
-### Le fichier `ctr.py`
+---
 
-Dans le package `garbled_circuit`, j'ai implémenté le chiffrement en mode compteur en utilisant la bibliothèque `pycryptodome` pour accéder à la fonction AES classique.
+# Running the Tests
 
-### Le fichier `garbler.py`
+To run all tests:
 
-Ce fichier implémente une variation du circuit brouillé dite _"Point and Permute"_. Contrairement à la version classqiue, qui utilise un MAC pour confirmer le bon fonctionnement du déchiffrement, cette version utilise les derniers bits des labels pour calculer la position exact à déchiffrer dans la table de vérité.
+```bash
+python -m pytest test/
+```
 
-Exemple :
+You can also run tests for a specific module, for example:
 
-Label 1 : 101001....1 (en binaire)
-Label 2 : 101000....0 (en binaire)
+```bash
+python -m pytest test/garbled_circuit
+```
 
-Position à déchiffrer : 10 (soit 2 en décimale)
+---
 
-## Détails de l'implémentation
+# Garbled Circuit Implementation
+**Author:** Mohamed BEN EL MOSTAPHA
 
-### Mode compteur
+## Overview
 
-`encrypt_ctr(key: int, message: int, nonce: int)` : Prend une clé de longueur 128 bits, un message de longueur quelconque et une valeur aléatoire. Le message
-est divisé en blocs de 128 bits, éventuellement avec du bourage. La bloque i est masqué (mis en xor avec une valeur) par un masque généré à l'aide de la valeur `nonce + i`. Le masque n'est autre que le chiffrement de `nonce + i` par la fonction AES standard.
+The implementation is located in the `garbled_circuit` package.
 
-### Circuit Brouillé
+### `ctr.py`
 
-`generate_wire_labels(circuit : CircuitCombinatoire)` : étant donné un circuit, produit une table qui associé à chaque noeud un tuple `(label0, label1)` ou les labels sont des valeurs aléatoire de longueur inférieure ou égale à 128 bits, sauf pour les noeud de sorties qui sont associé à `(0, 1)`.
-`label0` : représente la valuer 0 pour le noeud concerné dans le circuit brouillé
-`label1` : représente la valuer 1 pour le noeud concerné dans le circuit brouillé
-Le dernier bit de `label0`, soit `label0 & 1`, est opposé à celui de `label1`. Cette propriété sera utilisé pour l'implémentation du `Point and Permute` décrite çi-dessus.
+This file implements **AES encryption in Counter (CTR) mode** using the `pycryptodome` library.
 
-`get_index_from_input_labels(label_input_list)` : étant donnée une liste de labels, calcule la position généré en concatenant le dernier bit du label i à la position i du résultat.
+---
 
-`encrypt_output_label_with_input_labels(label_input_list, output_label, nonce)` : étant donnée une liste de labels, un label de sortie et une valeur aléatoire, chiffre le label de sortie `len(label_input_list)` fois, en utilisant le i-ème label comme clé et le résultat du dernier chiffrement comme message pour la fonction `encrypt_ctr`.
+### `garbler.py`
 
-`decrypt_encrypted_output_label_with_input_labels(label_input_list, encrypted_output_label, nonce)` : applique le même algorithme que la fonction de chiffrement en inversant la liste de labels.
+This file implements a variation of garbled circuits called **Point and Permute**.
 
-`binary_to_label_list(binary_list, label_tuples)` :
-étant données une liste de valeurs binaire et une liste de tuples `(label0, label1)`, produit une liste où chaque 1 ou 0 à la position i est remplacé par label0 ou label1 respectivement.
+Unlike the classical version, which uses a MAC to verify correct decryption, this approach uses the **last bit of wire labels** to determine the exact position to decrypt in the truth table.
 
-`get_input_possibilities(node : Node)` : Selon l'étiquette du noeud, renvoie une liste d'entrées possibles.
+Example:
 
-`garble(circuit : CircuitCombinatoire, wire_labels, nonce)` : Pour chaque noeud du circuit :
+```
+Label 1 : 101001....1
+Label 2 : 101000....0
+```
 
-1. Retrouve ses noeuds d'input
-2. Initialise une table de hachage qui va associer à chaque noeud une table de vérité
-3. Calcule les inputs possible selon le type du noeud, et pour chaque possibilité :
-   3.1. Calcule l'output pour cette possiblité et le traduit en label
-   3.2. traduit la liste d'input en labels
-   3.3. Utilise cette liste de labels pour chiffrer le label d'output en utilisant `encrypt_output_label_with_input_labels`
-   3.4. Met le résultat de ce chiffrement en la position calculé en utilisant `get_index_from_input_labels`
-4. Renvoie la table de hachage qui associe à chaque noeud sa table de vérité
+Decryption position:
 
-`evaluate(circuit : CircuitCombinatoire, garbled_circuit_tables, wire_values, nonce)` : `wire_values` est une table de hachage qui associe à chaque noeud sa valeur courante (son état). On s'attend à ce que les noeud d'input dans cette table soient initialise avec les labels souhaités. Pour chaque noeud, la fonction calcule la liste de label d'entré et l'utilise pour trouver la position à déchiffrer sur la table de tables de vérités.
+```
+10 (binary) = 2 (decimal)
+```
+
+---
+
+# Implementation Details
+
+## Counter Mode Encryption
+
+```python
+encrypt_ctr(key: int, message: int, nonce: int)
+```
+
+Parameters:
+
+- `key` – a 128-bit encryption key
+- `message` – a message of arbitrary length
+- `nonce` – a random value
+
+How it works:
+
+1. The message is split into 128-bit blocks (with padding if necessary).
+2. Block `i` is XORed with a mask.
+3. The mask is generated by encrypting `nonce + i` using AES.
+
+---
+
+# Garbled Circuits
+
+### `generate_wire_labels(circuit: CircuitCombinatoire)`
+
+Given a circuit, generates a table that associates each node with:
+
+```
+(label0, label1)
+```
+
+- `label0` represents logical value **0**
+- `label1` represents logical value **1**
+
+Labels are random values up to 128 bits.
+
+Output nodes are assigned:
+
+```
+(0, 1)
+```
+
+Important property:
+
+```
+label0 & 1 != label1 & 1
+```
+
+This property is required for the **Point-and-Permute** technique.
+
+---
+
+### `get_index_from_input_labels(label_input_list)`
+
+Given a list of labels, computes the index used to select the correct encrypted entry in the truth table.
+
+The index is built by concatenating the **last bit of each label**.
+
+---
+
+### `encrypt_output_label_with_input_labels(...)`
+
+Encrypts an output label using the input labels.
+
+Process:
+
+1. Take the list of input labels.
+2. Encrypt the output label multiple times.
+3. Each encryption uses one label as a key.
+4. The output of the previous encryption becomes the message of the next.
+
+Encryption uses `encrypt_ctr`.
+
+---
+
+### `decrypt_encrypted_output_label_with_input_labels(...)`
+
+Performs the same operations as encryption but with the labels in **reverse order** to recover the original label.
+
+---
+
+### `binary_to_label_list(binary_list, label_tuples)`
+
+Converts a binary input list into a list of labels.
+
+Example:
+
+```
+0 -> label0
+1 -> label1
+```
+
+---
+
+### `get_input_possibilities(node: Node)`
+
+Returns the list of possible input combinations depending on the node type.
+
+---
+
+### `garble(circuit: CircuitCombinatoire, wire_labels, nonce)`
+
+Builds the garbled circuit.
+
+For each node:
+
+1. Retrieve its input nodes
+2. Initialize a table representing its truth table
+3. Compute all possible input combinations
+
+For each possibility:
+
+1. Compute the output value
+2. Convert it to the corresponding label
+3. Convert input values into labels
+4. Encrypt the output label using the input labels
+5. Store the encrypted value at the position computed with `get_index_from_input_labels`
+
+The function returns a mapping between nodes and their garbled truth tables.
+
+---
+
+### `evaluate(...)`
+
+Evaluates the garbled circuit.
+
+`wire_values` is a dictionary mapping each node to its current value (label).
+
+Requirements:
+
+- Input nodes must already contain the correct labels.
+
+For each node:
+
+1. Retrieve the input labels
+2. Compute the correct table index
+3. Decrypt the corresponding entry
+4. Store the resulting label as the node’s value
+
+---
+
+# Project Structure
+
+```
+garbled_circuit/
+│
+├── ctr.py
+├── garbler.py
+│
+test/
+├── garbled_circuit/
+```
